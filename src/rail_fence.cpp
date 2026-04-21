@@ -15,6 +15,7 @@ bool is_valid_message(const string &text) {
     return true;
 }
 
+// ===== ENCRYPT =====
 string rail_fence_encrypt(const string &plaintext, int rails) {
     if (rails <= 1 || plaintext.empty()) return plaintext;
 
@@ -23,22 +24,65 @@ string rail_fence_encrypt(const string &plaintext, int rails) {
     int direction = 1;
 
     for (char c : plaintext) {
-        // TODO(student): Q6 can keep spaces as normal characters.
+        // Q6: giữ dấu cách như ký tự bình thường
         fence[rail] += c;
+
         rail += direction;
-        if (rail == rails - 1 || rail == 0) direction = -direction;
+        if (rail == rails - 1 || rail == 0)
+            direction = -direction;
     }
 
     string ciphertext;
-    for (const string &row : fence) ciphertext += row;
+    for (const string &row : fence)
+        ciphertext += row;
+
     return ciphertext;
 }
 
+// ===== DECRYPT =====
 string rail_fence_decrypt(const string &ciphertext, int rails) {
-    // TODO(student): Q5
-    return ciphertext;
+    if (rails <= 1 || ciphertext.empty()) return ciphertext;
+
+    int n = ciphertext.length();
+    vector<vector<char>> matrix(rails, vector<char>(n, '\n'));
+
+    // đánh dấu zigzag
+    int row = 0, direction = 1;
+    for (int col = 0; col < n; col++) {
+        matrix[row][col] = '*';
+
+        row += direction;
+        if (row == 0 || row == rails - 1)
+            direction = -direction;
+    }
+
+    // điền ký tự vào matrix
+    int index = 0;
+    for (int i = 0; i < rails; i++) {
+        for (int j = 0; j < n; j++) {
+            if (matrix[i][j] == '*' && index < n) {
+                matrix[i][j] = ciphertext[index++];
+            }
+        }
+    }
+
+    // đọc zigzag để giải mã
+    string result;
+    row = 0;
+    direction = 1;
+
+    for (int col = 0; col < n; col++) {
+        result += matrix[row][col];
+
+        row += direction;
+        if (row == 0 || row == rails - 1)
+            direction = -direction;
+    }
+
+    return result;
 }
 
+// ===== READ FILE =====
 string read_message_from_file(const string &path) {
     ifstream fin(path);
     string line;
@@ -78,8 +122,3 @@ int main() {
     } else if (choice == 2) {
         cout << "Plaintext: " << rail_fence_decrypt(message, rails) << "\n";
     } else {
-        cout << "Invalid choice.\n";
-    }
-
-    return 0;
-}
