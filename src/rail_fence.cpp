@@ -122,3 +122,8 @@ int main() {
     } else if (choice == 2) {
         cout << "Plaintext: " << rail_fence_decrypt(message, rails) << "\n";
     } else {
+cout << "Invalid choice.\n";
+    }
+
+    return 0;
+}
